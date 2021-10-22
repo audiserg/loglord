@@ -3,8 +3,7 @@ package com.example.demoaopcompose
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -14,7 +13,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.demoaopcompose.aspect.LogAOP
 import com.example.demoaopcompose.ui.theme.DemoaopcomposeTheme
 
 class MainActivity : ComponentActivity() {
@@ -38,13 +36,13 @@ object Nav {
     fun navigator() {
         navController = rememberNavController()
         NavHost(navController = navController, startDestination = "first") {
-            composable("first") { UI.mainPageOne("text vefore change ", navController) }
-            composable("second") { UI.secondPage(/*...*/) }
+            composable("first") { UI.mainPageOne("text before change ", navController) }
+            composable("second") { UI.secondPage(/*...*/navController) }
             /*...*/
         }
     }
 }
-@LogAOP
+// @LogAOP
 object UI {
     @Composable
     // @LogAOP
@@ -67,7 +65,8 @@ object UI {
         var textlabel1 = textlabel
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp).fillMaxWidth().fillMaxHeight(),
+            verticalArrangement = Arrangement.Center
         ) {
             Text(text = textlabel1)
             Button(onClick = b1ClickListener, modifier = Modifier.padding(all = 16.dp)) {
@@ -81,12 +80,19 @@ object UI {
     }
 
     @Composable
-    fun secondPage() {
+    fun secondPage(navController: NavHostController) {
         Scaffold {
             Surface {
 
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxSize()
+                ) {
                     Text("SecondPage")
+                    Button(onClick = { navController.popBackStack() }, modifier = Modifier.padding(all = 16.dp)) {
+                    Text("Back")
+                }
                 }
             }
         }
