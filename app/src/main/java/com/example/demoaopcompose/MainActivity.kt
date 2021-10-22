@@ -5,17 +5,18 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.demoaopcompose.aspect.LogAOP
 import com.example.demoaopcompose.ui.theme.DemoaopcomposeTheme
-@LogAOP
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,31 +24,70 @@ class MainActivity : ComponentActivity() {
 
             DemoaopcomposeTheme {
                 // A surface container using the 'background' color from the theme
-                Surface(color = MaterialTheme.colors.background) {
-                    UI.Greeting("main") {
-                        println("button clicked")
-                    }
-                }
+                Nav.navigator()
             }
         }
     }
 }
+// @LogAOP
+object Nav {
+    // @LogAOP
+    lateinit var navController: NavHostController
 
+    @Composable
+    fun navigator() {
+        navController = rememberNavController()
+        NavHost(navController = navController, startDestination = "first") {
+            composable("first") { UI.mainPageOne("text vefore change ", navController) }
+            composable("second") { UI.secondPage(/*...*/) }
+            /*...*/
+        }
+    }
+}
 @LogAOP
 object UI {
     @Composable
-    fun Greeting(text: String, onclick: () -> Unit) {
-        var textlabel by remember { mutableStateOf("Label Text before change") }
+    // @LogAOP
+    fun mainPageOne(text: String, navController: NavHostController) {
+        var textlabel by remember { mutableStateOf(text) }
 
-        mainPage(textlabel, { textlabel = "Text after change" })
+        mainContent(
+            textlabel,
+            { textlabel = "Text after change" }
+        ) { navController.navigate("second") }
     }
+
     @Composable
-    private fun mainPage(textlabel: String, block: () -> Unit) {
+    private fun mainContent(
+        textlabel: String,
+        b1ClickListener: () -> Unit,
+        b2ClickListener: () -> Unit
+    ) {
+        // The answer is no. AspectJ cannot intercept read/write operations on local variables, only on members.
         var textlabel1 = textlabel
-        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(16.dp)) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(16.dp)
+        ) {
             Text(text = textlabel1)
-            Button(onClick = block, modifier = Modifier.padding(all = 16.dp)) {
+            Button(onClick = b1ClickListener, modifier = Modifier.padding(all = 16.dp)) {
                 Text("Change text on Label")
+                textlabel1 = "serg"
+            }
+            Button(onClick = b2ClickListener, modifier = Modifier.padding(all = 16.dp)) {
+                Text("Navigate via compose")
+            }
+        }
+    }
+
+    @Composable
+    fun secondPage() {
+        Scaffold {
+            Surface {
+
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("SecondPage")
+                }
             }
         }
     }
